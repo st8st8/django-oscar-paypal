@@ -232,7 +232,10 @@ class SuccessResponseView(PaymentDetailsView):
             basket.strategy = Selector().strategy(self.request)
 
         # Re-apply any offers
-        Applicator().apply(request=self.request, basket=basket)
+        user = None
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        Applicator().apply(request=self.request, user=user, basket=basket)
 
         return basket
 
