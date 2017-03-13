@@ -56,6 +56,7 @@ class SuccessfulSetExpressCheckoutTests(BaseSetExpressCheckoutTests):
         basket.offer_discounts = []
         basket.voucher_discounts = []
         basket.shipping_discounts = []
+        basket.currency = 'GBP'
         methods = [Free()]
         url_str = get_paypal_url(basket, methods)
         self.url = URL.from_string(url_str)
@@ -103,6 +104,7 @@ class ExtraPaypalSuccessfulSetExpressCheckoutTests(BaseSetExpressCheckoutTests):
         basket.offer_discounts = []
         basket.voucher_discounts = []
         basket.shipping_discounts = []
+        basket.currency = 'GBP'
         methods = [Free()]
         url_str = get_paypal_url(basket, methods, paypal_params=self.paypal_params)
         self.url = URL.from_string(url_str)

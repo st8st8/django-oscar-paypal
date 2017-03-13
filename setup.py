@@ -21,7 +21,7 @@ setup(
         'requests>=1.0',
         'django-localflavor'],
     extras_require={
-        'oscar': ["django-oscar>=1.0"]
+        'oscar': ["django-oscar>=1.2"]
     },
     # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -35,7 +35,7 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Other/Nonlisted Topic'],
 )
