@@ -2,7 +2,10 @@ from __future__ import unicode_literals
 from decimal import Decimal as D
 
 from django.test import TestCase
-from django.utils import unittest
+try:
+    from django.utils import unittest
+except ImportError:
+    import unittest
 from django.conf import settings
 
 from paypal.payflow import gateway

@@ -5,13 +5,13 @@ Contributing
 Do this::
 
     mkvirtualenv oscar-paypal
-    git clone git://github.com/tangentlabs/django-oscar-paypal.git
+    git clone git://github.com/django-oscar/django-oscar-paypal.git
     cd django-oscar-paypal
     make install
 
 then you should be able to run the tests using::
 
-    ./runtests.py
+    py.test
 
 There is also a sandbox site for exploring a sample oscar site.  Set it up::
 
@@ -23,4 +23,4 @@ and run it::
 
 Use the `Github issue tracker`_ for any problems.
 
-.. _`Github issue tracker`: https://github.com/tangentlabs/django-oscar-paypal/issues
+.. _`Github issue tracker`: https://github.com/django-oscar/django-oscar-paypal/issues

@@ -1,17 +1,18 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import random
 
 from decimal import Decimal as D
 
 from django.test import TestCase
 from django.test.client import Client
+from django.utils.encoding import force_text
 from django.core.urlresolvers import reverse, NoReverseMatch
 from mock import patch, Mock
 
 from oscar.apps.order.models import Order
 from oscar.apps.basket.models import Basket
 from oscar.core.loading import get_classes
-
+from oscar.test.factories import create_product
 from purl import URL
 
 
@@ -23,41 +24,6 @@ Partner, StockRecord = get_classes('partner.models', ('Partner',
  ProductAttribute,
  ProductAttributeValue) = get_classes('catalogue.models', (
     'ProductClass', 'Product', 'ProductAttribute', 'ProductAttributeValue'))
-
-
-def create_product(price=None, title="Dummy title",
-                   product_class="Dummy item class", partner="Dummy partner",
-                   partner_sku=None, upc=None, num_in_stock=10,
-                   attributes=None, **kwargs):
-    """
-    Helper method for creating products that are used in tests.
-
-    Ported from oscar_testsupport. Where the function is present:
-        Oscar 0.4: oscar.test.helpers
-        Oscar 0.5: oscar_testsupport
-        Oscar 0.6: oscar.test.factories
-    """
-    ic, __ = ProductClass._default_manager.get_or_create(name=product_class)
-    item = Product(title=title, product_class=ic, upc=upc, **kwargs)
-
-    if attributes:
-        for key, value in attributes.items():
-            setattr(item.attr, key, value)
-
-    item.save()
-
-    if price is not None or partner_sku or num_in_stock is not None:
-        if not partner_sku:
-            partner_sku = 'sku_%d_%d' % (item.id, random.randint(0, 10000))
-        if price is None:
-            price = D('10.00')
-
-        partner, __ = Partner._default_manager.get_or_create(name=partner)
-        StockRecord._default_manager.create(product=item, partner=partner,
-                                            partner_sku=partner_sku,
-                                            price_excl_tax=price,
-                                            num_in_stock=num_in_stock)
-    return item
 
 
 class MockedPayPalTests(TestCase):
@@ -75,7 +41,7 @@ class MockedPayPalTests(TestCase):
 
     def get_mock_response(self, content=None):
         response = Mock()
-        response.text = self.response_body if content is None else content
+        response.content = self.response_body if content is None else content
         response.status_code = 200
         return response
 
@@ -83,14 +49,9 @@ class MockedPayPalTests(TestCase):
         pass
 
     def add_product_to_basket(self, price=D('100.00')):
-        product = create_product(price=price)
-        try:
-            # Oscar 0.8+
-            url = reverse('basket:add', kwargs={'pk': product.pk})
-        except NoReverseMatch:
-            # Oscar < 0.8
-            url = reverse('basket:add')
-        self.client.post(url, {'product_id': product.id, 'quantity': 1})
+        product = create_product(price=price, num_in_stock=1)
+        url = reverse('basket:add', kwargs={'pk': product.pk})
+        self.client.post(url, {'quantity': 1})
 
 
 class EdgeCaseTests(MockedPayPalTests):
@@ -171,7 +132,7 @@ class FailedTxnTests(MockedPayPalTests):
 
 
 class PreviewOrderTests(MockedPayPalTests):
-    response_body = 'TOKEN=EC%2d6WY34243AN3588740&CHECKOUTSTATUS=PaymentActionCompleted&TIMESTAMP=2012%2d04%2d19T10%3a07%3a46Z&CORRELATIONID=7e9c5efbda3c0&ACK=Success&VERSION=88%2e0&BUILD=2808426&EMAIL=david%2e_1332854868_per%40gmail%2ecom&PAYERID=7ZTRBDFYYA47W&PAYERSTATUS=verified&FIRSTNAME=David&LASTNAME=Winterbottom&COUNTRYCODE=GB&SHIPTONAME=David%20Winterbottom&SHIPTOSTREET=1%20Main%20Terrace&SHIPTOCITY=Wolverhampton&SHIPTOSTATE=West%20Midlands&SHIPTOZIP=W12%204LQ&SHIPTOCOUNTRYCODE=GB&SHIPTOCOUNTRYNAME=United%20Kingdom&ADDRESSSTATUS=Confirmed&CURRENCYCODE=GBP&AMT=33%2e98&SHIPPINGAMT=0%2e00&HANDLINGAMT=0%2e00&TAXAMT=0%2e00&INSURANCEAMT=0%2e00&SHIPDISCAMT=0%2e00&PAYMENTREQUEST_0_CURRENCYCODE=GBP&PAYMENTREQUEST_0_AMT=33%2e98&PAYMENTREQUEST_0_SHIPPINGAMT=0%2e00&PAYMENTREQUEST_0_HANDLINGAMT=0%2e00&PAYMENTREQUEST_0_TAXAMT=0%2e00&PAYMENTREQUEST_0_INSURANCEAMT=0%2e00&PAYMENTREQUEST_0_SHIPDISCAMT=0%2e00&PAYMENTREQUEST_0_TRANSACTIONID=51963679RW630412N&PAYMENTREQUEST_0_INSURANCEOPTIONOFFERED=false&PAYMENTREQUEST_0_SHIPTONAME=David%20Winterbottom&PAYMENTREQUEST_0_SHIPTOSTREET=1%20Main%20Terrace&PAYMENTREQUEST_0_SHIPTOCITY=Wolverhampton&PAYMENTREQUEST_0_SHIPTOSTATE=West%20Midlands&PAYMENTREQUEST_0_SHIPTOZIP=W12%204LQ&PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE=GB&PAYMENTREQUEST_0_SHIPTOCOUNTRYNAME=United%20Kingdom&PAYMENTREQUESTINFO_0_TRANSACTIONID=51963679RW630412N&PAYMENTREQUESTINFO_0_ERRORCODE=0'
+    response_body = 'TOKEN=EC%2d6WY34243AN3588740&CHECKOUTSTATUS=PaymentActionCompleted&TIMESTAMP=2012%2d04%2d19T10%3a07%3a46Z&CORRELATIONID=7e9c5efbda3c0&ACK=Success&VERSION=88%2e0&BUILD=2808426&EMAIL=david%2e_1332854868_per%40gmail%2ecom&PAYERID=7ZTRBDFYYA47W&PAYERSTATUS=verified&FIRSTNAME=David&LASTNAME=Winterbottom&COUNTRYCODE=GB&SHIPTONAME=David%20Winterbottom&SHIPTOSTREET=1%20Main%20Terrace&SHIPTOCITY=Wolverhampton&SHIPTOSTATE=West%20Midlands&SHIPTOZIP=W12%204LQ&SHIPTOCOUNTRYCODE=GB&SHIPTOCOUNTRYNAME=United%20Kingdom&ADDRESSSTATUS=Confirmed&CURRENCYCODE=GBP&AMT=33%2e98&SHIPPINGAMT=0%2e00&HANDLINGAMT=0%2e00&TAXAMT=0%2e00&INSURANCEAMT=0%2e00&SHIPDISCAMT=0%2e00&PAYMENTREQUEST_0_CURRENCYCODE=GBP&PAYMENTREQUEST_0_AMT=33%2e98&PAYMENTREQUEST_0_SHIPPINGAMT=0%2e00&PAYMENTREQUEST_0_HANDLINGAMT=0%2e00&PAYMENTREQUEST_0_TAXAMT=0%2e00&PAYMENTREQUEST_0_INSURANCEAMT=0%2e00&PAYMENTREQUEST_0_SHIPDISCAMT=0%2e00&PAYMENTREQUEST_0_TRANSACTIONID=51963679RW630412N&PAYMENTREQUEST_0_INSURANCEOPTIONOFFERED=false&PAYMENTREQUEST_0_SHIPTONAME=David%20Winterbottom&PAYMENTREQUEST_0_SHIPTOSTREET=1%20Main%20Terrace&PAYMENTREQUEST_0_SHIPTOCITY=Wolverhampton&PAYMENTREQUEST_0_SHIPTOSTATE=West%20Midlands&PAYMENTREQUEST_0_SHIPTOZIP=W12%204LQ&PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE=GB&PAYMENTREQUEST_0_SHIPTOCOUNTRYNAME=United%20Kingdom&PAYMENTREQUESTINFO_0_TRANSACTIONID=51963679RW630412N&PAYMENTREQUESTINFO_0_ERRORCODE=0&SHIPPINGOPTIONNAME=Royal%20Mail%20Signed%20For%e2%84%a2%202nd%20Class'
 
     def perform_action(self):
         self.add_product_to_basket(price=D('6.99'))
@@ -187,6 +148,10 @@ class PreviewOrderTests(MockedPayPalTests):
 
     def test_context(self):
         self.assertEqual(D('33.98'), self.response.context['paypal_amount'])
+        self.assertEqual('Royal Mail Signed For™ 2nd Class',
+                         force_text(self.response.context['shipping_method'].name))
+        self.assertEqual('uk_rm_2ndrecorded',
+                         force_text(self.response.context['shipping_method'].code))
 
     def test_keys_in_context(self):
         keys = ('shipping_address', 'shipping_method',

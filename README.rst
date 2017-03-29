@@ -2,16 +2,10 @@
 PayPal package for django-oscar
 ===============================
 
-.. image:: https://pypip.in/v/django-oscar-paypal/badge.png
-    :target: https://crate.io/packages/django-oscar-paypal/
-
-.. image:: https://pypip.in/d/django-oscar-paypal/badge.png
-    :target: https://crate.io/packages/django-oscar-paypal/
-
 This package provides integration between django-oscar_ and both `PayPal
 Express`_ and `PayPal Payflow Pro`_. 
 
-.. _django-oscar: https://github.com/tangentlabs/django-oscar
+.. _django-oscar: https://github.com/django-oscar/django-oscar
 .. _`PayPal Express`: https://www.paypal.com/uk/cgi-bin/webscr?cmd=_additional-payment-ref-impl1
 .. _`PayPal Payflow Pro`: https://merchant.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=merchant/payment_gateway
 
@@ -20,15 +14,15 @@ package is structured so that it can be used without Oscar if you so wish.
 
 * `Full documentation`_
 
-.. _`Full documentation`: http://django-oscar-paypal.readthedocs.org/en/latest/
-.. _`Continuous integration status`: http://travis-ci.org/#!/tangentlabs/django-oscar-paypal?branch=master
+.. _`Full documentation`: https://django-oscar-paypal.readthedocs.io/en/latest/
+.. _`Continuous integration status`: http://travis-ci.org/#!/django-oscar/django-oscar-paypal?branch=master
 
 License
 -------
 
 The package is released under the `New BSD license`_.
 
-.. _`New BSD license`: https://github.com/tangentlabs/django-oscar-paypal/blob/master/LICENSE
+.. _`New BSD license`: https://github.com/django-oscar/django-oscar-paypal/blob/master/LICENSE
 
 Support
 -------
@@ -46,23 +40,47 @@ Having problems or got a question?
 * Use Github_ for submitting issues and pull requests.
 
 .. _`@django_oscar`: https://twitter.com/django_oscar
-.. _`contributing guide`: http://django-oscar-paypal.readthedocs.org/en/latest/contributing.html
+.. _`contributing guide`: https://django-oscar-paypal.readthedocs.io/en/latest/contributing.html
 .. _`django-oscar@googlegroups.com`: https://groups.google.com/forum/?fromgroups#!forum/django-oscar
-.. _`Github`: http://github.com/tangentlabs/django-oscar-paypal
+.. _`Github`: http://github.com/django-oscar/django-oscar-paypal
 
 Tests
 -----
 
-.. image:: https://secure.travis-ci.org/tangentlabs/django-oscar-paypal.png
+.. image:: https://secure.travis-ci.org/django-oscar/django-oscar-paypal.png
     :alt: Continuous integration status
-    :target: http://travis-ci.org/#!/tangentlabs/django-oscar-paypal
+    :target: http://travis-ci.org/#!/django-oscar/django-oscar-paypal
 
-.. image:: https://coveralls.io/repos/tangentlabs/django-oscar-paypal/badge.png?branch=master
+.. image:: https://coveralls.io/repos/django-oscar/django-oscar-paypal/badge.png?branch=master
     :alt: Coverage
-    :target: https://coveralls.io/r/tangentlabs/django-oscar-paypal
+    :target: https://coveralls.io/r/django-oscar/django-oscar-paypal
 
 Changelog
 ---------
+
+0.9.7 (released January 12th, 2016)
+-----------------------------------
+* Fix breakage when using Oscar's ``DeferredTaxMixin``. `#98`_ `#121`_
+
+.. _`#98`: https://github.com/django-oscar/django-oscar-paypal/issues/98
+.. _`#121`: https://github.com/django-oscar/django-oscar-paypal/pull/121
+
+0.9.6 (released November 13th, 2015)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Add support for Oscar 1.1 and Django 1.8.
+* Drop support for Django 1.6 and Oscar 0.7.
+* Store submitted shipping method instead of falling back to ``FixedPrice``. `#107`_
+* Display original Paypal error message instead of generic error message. `#101`_
+* Bugfix: Hide form buttons as expected. `#94`_
+* Bugfix: Correct signature for call to ``get_shipping_methods``. `#99`_
+* Bugfix: Don't fail in countries without postcode. `#100`_
+
+.. _`#94`: https://github.com/django-oscar/django-oscar-paypal/pull/94
+.. _`#99`: https://github.com/django-oscar/django-oscar-paypal/issues/99
+.. _`#100`: https://github.com/django-oscar/django-oscar-paypal/issues/100
+.. _`#101`: https://github.com/django-oscar/django-oscar-paypal/pull/101
+.. _`#107`: https://github.com/django-oscar/django-oscar-paypal/pull/107
 
 0.9.5
 ~~~~~
@@ -81,7 +99,7 @@ Changelog
 * Use the correct key to look up a previous transaction ID (for
   refund/capture/void operations). `#81`_ 
 
-.. _`#81`: https://github.com/tangentlabs/django-oscar-paypal/pull/81
+.. _`#81`: https://github.com/django-oscar/django-oscar-paypal/pull/81
 
 0.9.2
 ~~~~~
@@ -134,7 +152,7 @@ Changelog
   customer was on the PayPal site.  This would cause the final order to contain
   more items that were paid for.
 
-.. _`security issue`: https://github.com/tangentlabs/django-oscar-paypal/pull/24
+.. _`security issue`: https://github.com/django-oscar/django-oscar-paypal/pull/24
 
 0.4.1
 ~~~~~
