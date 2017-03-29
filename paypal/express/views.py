@@ -231,7 +231,7 @@ class SuccessResponseView(PaymentDetailsView):
         if Selector:
             basket.strategy = Selector().strategy(self.request)
 
-        Applicator().apply(request=self.request, basket=basket)
+        Applicator().apply(request=self.request, user=self.request.user, basket=basket)
 
         return basket
 
