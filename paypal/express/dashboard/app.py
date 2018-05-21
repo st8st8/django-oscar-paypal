@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from django.contrib.admin.views.decorators import staff_member_required
-
 from oscar.core.application import Application
 
 from paypal.express.dashboard import views
