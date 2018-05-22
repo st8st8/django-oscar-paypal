@@ -293,6 +293,7 @@ class SuccessResponseView(PaymentDetailsView):
         submission['payment_kwargs']['payer_id'] = self.payer_id
         submission['payment_kwargs']['token'] = self.token
         submission['payment_kwargs']['txn'] = self.txn
+        submission['payment_kwargs']['basket'] = kwargs["basket"]
         return submission
 
     def handle_payment(self, order_number, total, **kwargs):
@@ -301,7 +302,7 @@ class SuccessResponseView(PaymentDetailsView):
         method to capture the money from the initial transaction.
         """
         try:
-            confirm_txn = confirm_transaction(
+            confirm_txn = confirm_transaction(kwargs["basket"],
                 kwargs['payer_id'], kwargs['token'], kwargs['txn'].amount,
                 kwargs['txn'].currency)
         except PayPalError:

@@ -112,6 +112,60 @@ def _fetch_response(method, extra_params):
         raise exceptions.PayPalError(msg)
 
     return txn
+    
+
+def _add_basket_lines_to_paypal_txn(basket, params):
+    # Add item details
+    index = 0
+    for index, line in enumerate(basket.all_lines()):
+        product = line.product
+        params['L_PAYMENTREQUEST_0_NAME%d' % index] = product.get_title()
+        params['L_PAYMENTREQUEST_0_NUMBER%d' % index] = (product.upc if
+                                                         product.upc else '')
+        desc = ''
+        if product.description:
+            desc = _format_description(product.description)
+        params['L_PAYMENTREQUEST_0_DESC%d' % index] = desc
+        # Note, we don't include discounts here - they are handled as separate
+        # lines - see below
+        params['L_PAYMENTREQUEST_0_AMT%d' % index] = _format_currency(
+            line.unit_price_incl_tax)
+        params['L_PAYMENTREQUEST_0_QTY%d' % index] = line.quantity
+
+    # If the order has discounts associated with it, the way PayPal suggests
+    # using the API is to add a separate item for the discount with the value
+    # as a negative price.  See "Integrating Order Details into the Express
+    # Checkout Flow"
+    # https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_ECCustomizing
+
+    # Iterate over the 3 types of discount that can occur
+    for discount in basket.offer_discounts:
+        index += 1
+        name = _("Special Offer: %s") % discount['name']
+        params['L_PAYMENTREQUEST_0_NAME%d' % index] = name
+        params['L_PAYMENTREQUEST_0_DESC%d' % index] = _format_description(name)
+        params['L_PAYMENTREQUEST_0_AMT%d' % index] = _format_currency(
+            -discount['discount'])
+        params['L_PAYMENTREQUEST_0_QTY%d' % index] = 1
+    for discount in basket.voucher_discounts:
+        index += 1
+        name = "%s (%s)" % (discount['voucher'].name,
+                            discount['voucher'].code)
+        params['L_PAYMENTREQUEST_0_NAME%d' % index] = name
+        params['L_PAYMENTREQUEST_0_DESC%d' % index] = _format_description(name)
+        params['L_PAYMENTREQUEST_0_AMT%d' % index] = _format_currency(
+            -discount['discount'])
+        params['L_PAYMENTREQUEST_0_QTY%d' % index] = 1
+    for discount in basket.shipping_discounts:
+        index += 1
+        name = _("Shipping Offer: %s") % discount['name']
+        params['L_PAYMENTREQUEST_0_NAME%d' % index] = name
+        params['L_PAYMENTREQUEST_0_DESC%d' % index] = _format_description(name)
+        params['L_PAYMENTREQUEST_0_AMT%d' % index] = _format_currency(
+            -discount['discount'])
+        params['L_PAYMENTREQUEST_0_QTY%d' % index] = 1
+
+    return params
 
 
 def set_txn(basket, shipping_methods, currency, return_url, cancel_url, update_url=None,
@@ -190,56 +244,8 @@ def set_txn(basket, shipping_methods, currency, return_url, cancel_url, update_u
         'CANCELURL': cancel_url,
         'PAYMENTREQUEST_0_PAYMENTACTION': action,
     })
-
-    # Add item details
-    index = 0
-    for index, line in enumerate(basket.all_lines()):
-        product = line.product
-        params['L_PAYMENTREQUEST_0_NAME%d' % index] = product.get_title()
-        params['L_PAYMENTREQUEST_0_NUMBER%d' % index] = (product.upc if
-                                                         product.upc else '')
-        desc = ''
-        if product.description:
-            desc = _format_description(product.description)
-        params['L_PAYMENTREQUEST_0_DESC%d' % index] = desc
-        # Note, we don't include discounts here - they are handled as separate
-        # lines - see below
-        params['L_PAYMENTREQUEST_0_AMT%d' % index] = _format_currency(
-            line.unit_price_incl_tax)
-        params['L_PAYMENTREQUEST_0_QTY%d' % index] = line.quantity
-
-    # If the order has discounts associated with it, the way PayPal suggests
-    # using the API is to add a separate item for the discount with the value
-    # as a negative price.  See "Integrating Order Details into the Express
-    # Checkout Flow"
-    # https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_ECCustomizing
-
-    # Iterate over the 3 types of discount that can occur
-    for discount in basket.offer_discounts:
-        index += 1
-        name = _("Special Offer: %s") % discount['name']
-        params['L_PAYMENTREQUEST_0_NAME%d' % index] = name
-        params['L_PAYMENTREQUEST_0_DESC%d' % index] = _format_description(name)
-        params['L_PAYMENTREQUEST_0_AMT%d' % index] = _format_currency(
-            -discount['discount'])
-        params['L_PAYMENTREQUEST_0_QTY%d' % index] = 1
-    for discount in basket.voucher_discounts:
-        index += 1
-        name = "%s (%s)" % (discount['voucher'].name,
-                            discount['voucher'].code)
-        params['L_PAYMENTREQUEST_0_NAME%d' % index] = name
-        params['L_PAYMENTREQUEST_0_DESC%d' % index] = _format_description(name)
-        params['L_PAYMENTREQUEST_0_AMT%d' % index] = _format_currency(
-            -discount['discount'])
-        params['L_PAYMENTREQUEST_0_QTY%d' % index] = 1
-    for discount in basket.shipping_discounts:
-        index += 1
-        name = _("Shipping Offer: %s") % discount['name']
-        params['L_PAYMENTREQUEST_0_NAME%d' % index] = name
-        params['L_PAYMENTREQUEST_0_DESC%d' % index] = _format_description(name)
-        params['L_PAYMENTREQUEST_0_AMT%d' % index] = _format_currency(
-            -discount['discount'])
-        params['L_PAYMENTREQUEST_0_QTY%d' % index] = 1
+    
+    params = _add_basket_lines_to_paypal_txn(basket, params)
 
     # We include tax in the prices rather than separately as that's how it's
     # done on most British/Australian sites.  Will need to refactor in the
@@ -358,7 +364,7 @@ def get_txn(token):
     return _fetch_response(GET_EXPRESS_CHECKOUT, {'TOKEN': token})
 
 
-def do_txn(payer_id, token, amount, currency, action=SALE):
+def do_txn(basket, payer_id, token, amount, currency, action=SALE):
     """
     DoExpressCheckoutPayment
     """
@@ -369,6 +375,7 @@ def do_txn(payer_id, token, amount, currency, action=SALE):
         'PAYMENTREQUEST_0_CURRENCYCODE': currency,
         'PAYMENTREQUEST_0_PAYMENTACTION': action,
     }
+    params = _add_basket_lines_to_paypal_txn(basket, params)
     return _fetch_response(DO_EXPRESS_CHECKOUT, params)
 
 

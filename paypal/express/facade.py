@@ -93,11 +93,11 @@ def fetch_transaction_details(token):
     return get_txn(token)
 
 
-def confirm_transaction(payer_id, token, amount, currency):
+def confirm_transaction(basket, payer_id, token, amount, currency):
     """
     Confirm the payment action.
     """
-    return do_txn(payer_id, token, amount, currency,
+    return do_txn(basket, payer_id, token, amount, currency,
                   action=_get_payment_action())
 
 
