@@ -29,6 +29,8 @@ API_VERSION = getattr(settings, 'PAYPAL_API_VERSION', '119')
 
 logger = logging.getLogger('paypal.express')
 
+buyer_pays_on_paypal = lambda: getattr(settings, 'PAYPAL_BUYER_PAYS_ON_PAYPAL', False)
+
 
 def _format_description(description):
     if description:
