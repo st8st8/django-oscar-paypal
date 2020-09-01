@@ -1,9 +1,7 @@
-from __future__ import unicode_literals
-
 from decimal import Decimal as D
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
-from mock import Mock, patch
 from oscar.apps.shipping.methods import FixedPrice, Free
 
 from paypal import exceptions

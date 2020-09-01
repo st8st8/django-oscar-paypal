@@ -1,6 +1,5 @@
-from __future__ import unicode_literals
+from unittest import mock
 
-import mock
 from django.test import TestCase
 
 from paypal.gateway import post

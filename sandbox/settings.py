@@ -110,15 +110,11 @@ INTERNAL_IPS = ('127.0.0.1',)
 
 ROOT_URLCONF = 'urls'
 
-from oscar import OSCAR_MAIN_TEMPLATE_DIR
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             location('templates'),
-            os.path.join(OSCAR_MAIN_TEMPLATE_DIR, 'templates'),
-            OSCAR_MAIN_TEMPLATE_DIR,
         ],
         'OPTIONS': {
             'loaders': [
@@ -135,8 +131,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'oscar.apps.search.context_processors.search_form',
-                'oscar.apps.promotions.context_processors.promotions',
                 'oscar.apps.checkout.context_processors.checkout',
+                'oscar.apps.customer.notifications.context_processors.notifications',
                 'oscar.core.context_processors.metadata',
             ],
         }
@@ -221,18 +217,53 @@ INSTALLED_APPS = [
     # External apps
     'django_extensions',
     'debug_toolbar',
+
+    # sandbox
+    'apps.shipping.apps.ShippingConfig',
+    'apps.checkout.apps.CheckoutConfig',
+    'paypal.express.dashboard.apps.ExpressDashboardApplication',
+    'paypal.payflow.dashboard.apps.PayFlowDashboardApplication',
+
+    # oscar
+    'oscar',
+    'oscar.apps.analytics',
+    'oscar.apps.address',
+    'oscar.apps.catalogue',
+    'oscar.apps.catalogue.reviews',
+    'oscar.apps.partner',
+    'oscar.apps.basket',
+    'oscar.apps.payment',
+    'oscar.apps.offer',
+    'oscar.apps.order',
+    'oscar.apps.customer',
+    'oscar.apps.search',
+    'oscar.apps.voucher',
+    'oscar.apps.wishlists',
+    'oscar.apps.dashboard',
+    'oscar.apps.dashboard.reports',
+    'oscar.apps.dashboard.users',
+    'oscar.apps.dashboard.orders',
+    'oscar.apps.dashboard.catalogue',
+    'oscar.apps.dashboard.offers',
+    'oscar.apps.dashboard.partners',
+    'oscar.apps.dashboard.pages',
+    'oscar.apps.dashboard.ranges',
+    'oscar.apps.dashboard.reviews',
+    'oscar.apps.dashboard.vouchers',
+    'oscar.apps.dashboard.communications',
+    'oscar.apps.dashboard.shipping',
+
     # Apps from oscar
     'paypal',
     'widget_tweaks',
+    'haystack',
+    'treebeard',
+    'sorl.thumbnail',
+    'django_tables2',
 ]
 
-from oscar import get_core_apps
-INSTALLED_APPS = INSTALLED_APPS + get_core_apps([
-    'apps.shipping',
-    'apps.checkout'])
-
 AUTHENTICATION_BACKENDS = (
-    'oscar.apps.customer.auth_backends.Emailbackend',
+    'oscar.apps.customer.auth_backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -246,7 +277,7 @@ OSCAR_ALLOW_ANON_CHECKOUT = True
 OSCAR_SHOP_TAGLINE = 'PayPal'
 
 # Add Payflow dashboard stuff to settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 OSCAR_DASHBOARD_NAVIGATION.append(
     {
         'label': _('PayPal'),
@@ -254,11 +285,11 @@ OSCAR_DASHBOARD_NAVIGATION.append(
         'children': [
             {
                 'label': _('PayFlow transactions'),
-                'url_name': 'paypal-payflow-list',
+                'url_name': 'payflow_dashboard:paypal-payflow-list',
             },
             {
                 'label': _('Express transactions'),
-                'url_name': 'paypal-express-list',
+                'url_name': 'express_dashboard:paypal-express-list',
             },
         ]
     })

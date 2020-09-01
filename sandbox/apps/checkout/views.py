@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from oscar.apps.checkout import views
 from oscar.apps.payment import forms, models
 
@@ -13,6 +13,8 @@ class PaymentDetailsView(views.PaymentDetailsView):
     (see get_context_data method)and Payppal Flow (the other methods).
     Naturally, you will only want to use one of the two.
     """
+    template_name = 'checkout/payment_details.html'
+    template_name_preview = 'checkout/preview.html'
 
     def get_context_data(self, **kwargs):
         """

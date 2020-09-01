@@ -1,10 +1,12 @@
 from __future__ import unicode_literals
+from urllib.parse import parse_qsl
 
 from django.db import models
 from django.utils import six
-from django.utils.encoding import smart_text
 from django.utils.six.moves.urllib.parse import parse_qsl
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+
 
 
 class ResponseModel(models.Model):
@@ -46,13 +48,7 @@ class ResponseModel(models.Model):
     @property
     def context(self):
         ctx = {}
-        if six.PY2 and isinstance(self.raw_response, six.text_type):
-            self.raw_response = self.raw_response.encode('utf8')
         for key, val in parse_qsl(smart_text(self.raw_response)):
-            if isinstance(key, six.binary_type):
-                key = key.decode('utf8')
-            if isinstance(val, six.binary_type):
-                val = val.decode('utf8')
             ctx[key] = [val]
         return ctx
 

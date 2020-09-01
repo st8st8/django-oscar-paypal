@@ -1,11 +1,8 @@
-from __future__ import unicode_literals
-
 import datetime
 from decimal import Decimal as D
+from unittest import mock
 
-import mock
 from django.test import TestCase
-from django.utils import six
 from oscar.apps.payment import exceptions
 from oscar.apps.payment.models import Bankcard
 
@@ -54,7 +51,7 @@ class TestAuthorize(TestCase):
             try:
                 self.authorize()
             except exceptions.UnableToTakePayment as e:
-                self.assertEqual("Invalid account number", six.text_type(e))
+                self.assertEqual("Invalid account number", str(e))
 
 
 class TestSale(TestCase):

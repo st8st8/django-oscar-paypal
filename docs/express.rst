@@ -41,17 +41,17 @@ follows::
     from paypal.express.dashboard.app import application
 
     urlpatterns = [
-        url(r'^admin/', include(admin.site.urls)),
+        url(r'^admin/', admin.site.urls),
         url(r'^checkout/paypal/', include('paypal.express.urls')),
         # Optional
-        url(r'^dashboard/paypal/express/', include(application.urls)),
-        url(r'', include(shop.urls)),
+        url(r'^dashboard/paypal/express/', application.urls),
+        url(r'', shop.urls),
     ]
 
 If you are using the dashboard views, extend the dashboard navigation to include
 the appropriate links::
 
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
     OSCAR_DASHBOARD_NAVIGATION.append(
         {
             'label': _('PayPal'),
@@ -124,6 +124,8 @@ settings.
 * ``PAYPAL_PAGESTYLE`` - name of the Custom Payment Page Style for payment pages
   associated with this button or link
 * ``PAYPAL_PAYFLOW_COLOR`` - background color (6-char hex value) for the payment page
+* ``PAYPAL_BUYER_PAYS_ON_PAYPAL`` - If ``True`` you can shorten your checkout flow to
+  let buyers complete their purchases on PayPal. The order confirmation page is skipped (defaults to ``False``)
 
 
 Some of these options, like the display ones, can be set in your PayPal merchant

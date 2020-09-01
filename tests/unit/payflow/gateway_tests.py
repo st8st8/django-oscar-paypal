@@ -1,8 +1,6 @@
-from __future__ import unicode_literals
-
 from decimal import Decimal as D
+from unittest import mock
 
-import mock
 from django.test import TestCase
 
 from paypal.payflow import gateway
