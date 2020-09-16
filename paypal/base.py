@@ -1,10 +1,7 @@
-from __future__ import unicode_literals
 from urllib.parse import parse_qsl
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import gettext_lazy as _
-from urllib.parse import parse_qs
 
 
 class ResponseModel(models.Model):
@@ -46,7 +43,7 @@ class ResponseModel(models.Model):
     @property
     def context(self):
         ctx = {}
-        for key, val in parse_qs(smart_text(self.raw_response)):
+        for key, val in parse_qsl(self.raw_response):
             ctx[key] = [val]
         return ctx
 
