@@ -17,12 +17,13 @@ setup(
     packages=find_packages(exclude=['sandbox*', 'tests*']),
     include_package_data=True,
     install_requires=[
-        'django>=2.2',
+        'django>=2.2,<2.3',
+        'paypal-checkout-serversdk>=1.0.1',
         'requests>=1.0',
         'django-localflavor'
     ],
     extras_require={
-        'oscar': ['django-oscar>=2.0']
+        'oscar': ['django-oscar>=2.0,<2.2']
     },
     # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -34,7 +35,6 @@ setup(
         'Operating System :: Unix',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Topic :: Other/Nonlisted Topic'],

@@ -1,6 +1,5 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.shortcuts import redirect
 from oscar.apps.checkout import views
 from oscar.apps.payment import forms, models
 
@@ -9,8 +8,8 @@ from paypal.payflow import facade
 
 class PaymentDetailsView(views.PaymentDetailsView):
     """
-    An example view that shows how to integrate BOTH Paypal Express
-    (see get_context_data method)and Payppal Flow (the other methods).
+    An example view that shows how to integrate BOTH PayPal Express
+    (see `get_context_data method`) and PayPal Flow (the other methods).
     Naturally, you will only want to use one of the two.
     """
     template_name = 'checkout/payment_details.html'
@@ -30,7 +29,7 @@ class PaymentDetailsView(views.PaymentDetailsView):
         return ctx
 
     def post(self, request, *args, **kwargs):
-        # Override so we can validate the bankcard/billingaddress submission.
+        # Override so we can validate the bankcard/billing_address submission.
         # If it is valid, we render the preview screen with the forms hidden
         # within it.  When the preview is submitted, we pick up the 'action'
         # parameters and actually place the order.
@@ -61,7 +60,7 @@ class PaymentDetailsView(views.PaymentDetailsView):
         if not all([bankcard_form.is_valid(),
                     billing_address_form.is_valid()]):
             messages.error(request, "Invalid submission")
-            return HttpResponseRedirect(reverse('checkout:payment-details'))
+            return redirect('checkout:payment-details')
 
         # Attempt to submit the order, passing the bankcard object so that it
         # gets passed back to the 'handle_payment' method below.

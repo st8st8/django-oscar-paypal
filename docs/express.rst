@@ -26,7 +26,7 @@ seller.  Once the seller is created, you will have access to a
 username, password and 'signature' which are used to authenticate API
 requests.
 
-Add the following settings using the details from your sandbox buyer account::
+Add the following settings using the details from your sandbox seller account::
 
     PAYPAL_API_USERNAME = 'test_xxxx.gmail.com'
     PAYPAL_API_PASSWORD = '123456789'
@@ -36,21 +36,24 @@ Next, you need to add the PayPal URLs to your URL config.  This can be done as
 follows::
 
     from django.contrib import admin
+    from django.urls import include, path
+
     from oscar.app import shop
-
-    from paypal.express.dashboard.app import application
-
+    
     urlpatterns = [
-        url(r'^admin/', admin.site.urls),
-        url(r'^checkout/paypal/', include('paypal.express.urls')),
+        path('admin/', admin.site.urls),
+        path('checkout/paypal/', include('paypal.express.urls')),
         # Optional
-        url(r'^dashboard/paypal/express/', application.urls),
-        url(r'', shop.urls),
+        path('dashboard/paypal/express/', apps.get_app_config("express_dashboard").urls),
+        path('', shop.urls),
     ]
 
 If you are using the dashboard views, extend the dashboard navigation to include
-the appropriate links::
-
+the appropriate links and add the dashboard app to INSTALLED_APPS in settings.py:: 
+    
+    INSTALLED_APPS += ['paypal.express.dashboard.apps.ExpressDashboardApplication']
+    
+    # Add Payflow dashboard stuff to settings
     from django.utils.translation import gettext_lazy as _
     OSCAR_DASHBOARD_NAVIGATION.append(
         {
@@ -59,7 +62,7 @@ the appropriate links::
             'children': [
                 {
                     'label': _('Express transactions'),
-                    'url_name': 'paypal-express-list',
+                    'url_name': 'express_dashboard:paypal-express-list',
                 },
             ]
         })
